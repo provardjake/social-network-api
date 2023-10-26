@@ -13,6 +13,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
+            //validator regex for matching an email
             match: [/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/, "Email address not valid"]
         },
         thoughts: [
@@ -36,10 +37,11 @@ const userSchema = new Schema(
     }
 );
 
+// returns how many friends a user has
 userSchema.virtual("friendCount").get(function(){
     return this.friends.length;
 });
 
-const User = model('user', userSchema);
+const User = model("user", userSchema);
 
-model.exports = User;
+module.exports = User;

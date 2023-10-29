@@ -1,11 +1,17 @@
 const { response } = require("express");
 const {User, Thought} = require("../models");
-const { findOneAndDelete } = require("../models/Thought");
 
 module.exports = {
+
+    //route that gets all users
     async getUsers(req, res){
         try{
-            const users = await User.find();
+            const users = await User.find()
+            .populate({
+                path: "thoughts",
+                select: "-__v"
+            })
+            .select("-__v");
 
             res.json(users);
         }
@@ -15,6 +21,7 @@ module.exports = {
         }
     },
 
+    //route that creates a new user
     async createUser(req, res){
         try{
             const user = await User.create(req.body);
@@ -26,9 +33,14 @@ module.exports = {
         }
     },
 
+    // route that gets a single user by the id
     async getSingleUser(req, res){
         try{
-            const user = await User.findOne({_id: req.params.userId}).select("-__v");
+            const user = await User.findOne({_id: req.params.userId})
+            .populate({
+                path: "thoughts",
+                select: "-__v"
+            });
             
             if(!user){
                 return res.status(404).json({message: "User not found"});
@@ -42,6 +54,7 @@ module.exports = {
         }
     },
 
+    // route that updates a user
     async updateUser(req, res){
         try{
             const user = await User.findOneAndUpdate(
@@ -62,6 +75,7 @@ module.exports = {
         }
     },
 
+    // route that deletes a user
     async deleteUser(req, res){
         try{
             const user = await User.findOneAndDelete({_id: req.params.userId});
@@ -72,7 +86,7 @@ module.exports = {
 
             await Thought.deleteMany({_id: {$in: user.thoughts}});
 
-            res.json({message: "User and users thoughts deleted"});
+            res.json({message: "User deleted."});
         }
         catch(err){
             console.log(err);
@@ -80,6 +94,7 @@ module.exports = {
         }
     },
 
+    // route that adds a friend to another users friends list
     async addFriend(req, res){
         try{
             const friend = await User.findOneAndUpdate(
@@ -99,6 +114,8 @@ module.exports = {
             return response.status(500).json(err);
         }
     },
+
+    // route that deletes a friend from a friends list
     async removeFriend(req, res){
         try{
             const friend = await findOneAndUpdate(
@@ -111,7 +128,7 @@ module.exports = {
                 return res.status(404).json({message: "User not found"});
             }
 
-            res.json({message: "Friend removed"});
+            res.json(friend, {message: "Friend removed"});
         }
         catch(err){
             console.log(err);

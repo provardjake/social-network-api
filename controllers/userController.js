@@ -118,7 +118,7 @@ module.exports = {
     // route that deletes a friend from a friends list
     async removeFriend(req, res){
         try{
-            const friend = await findOneAndUpdate(
+            const friend = await User.findOneAndUpdate(
                 {_id: req.params.userId},
                 {$pull: {friends: req.params.friendId}},
                 {runValidators: true, new: true}
@@ -128,7 +128,7 @@ module.exports = {
                 return res.status(404).json({message: "User not found"});
             }
 
-            res.json(friend, {message: "Friend removed"});
+            res.json({message: "Friend removed"});
         }
         catch(err){
             console.log(err);
